@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌾 भूमि रिकॉर्ड खोज | Land Record Search</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3b82f6",
+                        secondary: "#10b981",
+                        background: "#f9fafb",
+                        dark: "#111827",
+                    },
+                    borderRadius: {
+                        'lg': '8px',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- React and Babel CDNs -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .animate-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-[#f9fafb] text-[#111827]">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Mock Lucide components for CDN version
+        const Icon = ({ name, className }) => {
+            const [svg, setSvg] = useState('');
+            useEffect(() => {
+                const icon = lucide.icons[name];
+                if (icon) {
+                    const svgString = lucide.createIcons.toSvg(icon, { class: className });
+                    setSvg(svgString);
+                }
+            }, [name, className]);
+            return <span dangerouslySetInnerHTML={{ __html: svg }} />;
+        };
+
+        const Search = (props) => <Icon name="search" {...props} />;
+        const Map = (props) => <Icon name="map" {...props} />;
+        const FileText = (props) => <Icon name="file-text" {...props} />;
+        const ChevronRight = (props) => <Icon name="chevron-right" {...props} />;
+        const Info = (props) => <Icon name="info" {...props} />;
+        const AlertCircle = (props) => <Icon name="alert-circle" {...props} />;
+        const Loader2 = (props) => <Icon name="loader-2" {...props} />;
+
+        const villages = ['छेरकापुर', 'छड़िया', 'तिल्दा', 'गबौद'];
+        const firstNames = ['राम', 'श्याम', 'हरी', 'विजय', 'दिनेश', 'मनोज', 'राजेश', 'रवि', 'सुनील', 'अजय'];
+        const lastNames = ['कुमार', 'शर्मा', 'वर्मा', 'पटेल', 'साहू', 'तिवारी', 'मिश्रा', 'सिंह', 'यादव', 'साकेत'];
+        const landTypes = ['सिंचित भूमि', 'असिंचित भूमि', 'पड़त भूमि'];
+
+        const generateMockData = () => {
+            const records = [];
+            const villageCounts = {
+                'छेरकापुर': 20,
+                'छड़िया': 10,
+                'तिल्दा': 10,
+                'गबौद': 10
+            };
+
+            let idCounter = 1;
+            Object.entries(villageCounts).forEach(([village, count]) => {
+                for (let i = 0; i < count / 2; i++) {
+                    const basraNumber = (400 + Math.floor(Math.random() * 500)).toString();
+                    const ownerName = `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+
+                    for (let j = 1; j <= 2; j++) {
+                        const khasraBase = 100 + Math.floor(Math.random() * 400);
+                        const khasraNumber = `${khasraBase}/${j}`;
+
+                        records.push({
+                            id: idCounter++,
+                            serialNumber: 1000 + idCounter,
+                            village,
+                            khasraNumber,
+                            basraNumber,
+                            area: Number((Math.random() * 5 + 0.1).toFixed(3)),
+                            ownerName,
+                            isGrazingLand: Math.random() > 0.8 ? 'हाँ' : 'नहीं',
+                            isCeilingLand: Math.random() > 0.9 ? 'हाँ' : 'नहीं',
+                            landType: landTypes[Math.floor(Math.random() * landTypes.length)],
+                            nistarDetails: 'साधारण'
+                        });
+                    }
+                }
+            });
+            return records;
+        };
+
+        const mockRecords = generateMockData();
+
+        function App() {
+            const [activeTab, setActiveTab] = useState('khasra');
+            const [village, setVillage] = useState('');
+            const [searchValue, setSearchValue] = useState('');
+            const [results, setResults] = useState([]);
+            const [isSearching, setIsSearching] = useState(false);
+            const [hasSearched, setHasSearched] = useState(false);
+            const [error, setError] = useState('');
+
+            useEffect(() => {
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }, [results, activeTab, isSearching]);
+
+            const handleSearch = (e) => {
+                e.preventDefault();
+                if (!village) {
+                    setError('कृपया ग्राम चुनें');
+                    return;
+                }
+                if (!searchValue) {
+                    setError(activeTab === 'khasra' ? 'खसरा नंबर डालें' : 'बसरा नंबर डालें');
+                    return;
+                }
+
+                setError('');
+                setIsSearching(true);
+                setHasSearched(true);
+
+                setTimeout(() => {
+                    let filtered = [];
+                    if (activeTab === 'khasra') {
+                        const found = mockRecords.find(r => r.village === village && r.khasraNumber === searchValue);
+                        filtered = found ? [found] : [];
+                    } else {
+                        filtered = mockRecords.filter(r => r.village === village && r.basraNumber === searchValue);
+                    }
+                    setResults(filtered);
+                    setIsSearching(false);
+                }, 600);
+            };
+
+            const totalArea = results.reduce((sum, r) => sum + r.area, 0);
+
+            return (
+                <div className="min-h-screen flex flex-col items-center p-4 md:p-8">
+                    <header className="w-full max-w-4xl mb-8 animate-in text-center">
+                        <div className="flex justify-center items-center mb-2">
+                            <Map className="w-8 h-8 text-primary mr-2" />
+                            <h1 className="text-3xl font-bold text-dark">भूमि रिकॉर्ड खोज</h1>
+                        </div>
+                        <p className="text-gray-500">ग्राम पंचायत स्तर पर भूमि रिकॉर्ड की त्वरित खोज</p>
+                    </header>
+
+                    <main className="w-full max-w-4xl space-y-6">
+                        <div className="flex bg-white p-1 rounded-xl shadow-sm border border-gray-100">
+                            <button
+                                onClick={() => { setActiveTab('khasra'); setHasSearched(false); setResults([]); }}
+                                className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all flex items-center justify-center ${activeTab === 'khasra' ? "bg-primary text-white shadow-md" : "text-gray-500 hover:bg-gray-50"
+                                    }`}
+                            >
+                                <Search className="w-4 h-4 mr-2" />
+                                खसरा खोज
+                            </button>
+                            <button
+                                onClick={() => { setActiveTab('basra'); setHasSearched(false); setResults([]); }}
+                                className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all flex items-center justify-center ${activeTab === 'basra' ? "bg-secondary text-white shadow-md" : "text-gray-500 hover:bg-gray-50"
+                                    }`}
+                            >
+                                <FileText className="w-4 h-4 mr-2" />
+                                बसरा खोज (Owner Portfolio)
+                            </button>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 animate-in" style={{ animationDelay: '0.1s' }}>
+                            <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">ग्राम चुनें</label>
+                                    <select
+                                        value={village}
+                                        onChange={(e) => setVillage(e.target.value)}
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all cursor-pointer"
+                                    >
+                                        <option value="">-- चुनें --</option>
+                                        {villages.map(v => <option key={v} value={v}>{v}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        {activeTab === 'khasra' ? 'खसरा नंबर' : 'बसरा नंबर'}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder={activeTab === 'khasra' ? "उदा: 123/1" : "उदा: 456"}
+                                        value={searchValue}
+                                        onChange={(e) => setSearchValue(e.target.value)}
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                    />
+                                </div>
+                                <div className="flex flex-col justify-end">
+                                    <button
+                                        type="submit"
+                                        disabled={isSearching}
+                                        className={`w-full p-3 rounded-lg font-bold text-white transition-all transform active:scale-95 flex items-center justify-center ${activeTab === 'khasra' ? "bg-primary hover:bg-blue-600" : "bg-secondary hover:bg-green-600"
+                                            } ${isSearching ? "opacity-70 cursor-not-allowed" : ""}`}
+                                    >
+                                        {isSearching ? <span className="animate-spin mr-2">◌</span> : 'खोजें'}
+                                    </button>
+                                </div>
+                            </form>
+                            {error && (
+                                <div className="mt-3 flex items-center text-red-500 text-sm animate-in">
+                                    <AlertCircle className="w-4 h-4 mr-1" />
+                                    {error}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="space-y-6">
+                            {isSearching && (
+                                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                                    <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                                    <p>खोज जारी है...</p>
+                                </div>
+                            )}
+
+                            {!isSearching && hasSearched && results.length === 0 && (
+                                <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl p-12 text-center animate-in">
+                                    <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <AlertCircle className="w-8 h-8 text-gray-300" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-500">कोई रिकॉर्ड नहीं मिला</h3>
+                                    <p className="text-gray-400">कृपया जानकारी की शुद्धता जांचें</p>
+                                </div>
+                            )}
+
+                            {!isSearching && results.length > 0 && (
+                                <div className="space-y-6 animate-in">
+                                    {activeTab === 'basra' && (
+                                        <div className="bg-green-50 border border-green-100 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                            <div>
+                                                <h2 className="text-lg font-bold text-green-900 flex items-center">
+                                                    <FileText className="w-5 h-5 mr-2" />
+                                                    स्वामित्व सारांश (Portfolio Summary)
+                                                </h2>
+                                                <p className="text-green-700">भूमिस्वामी: <span className="font-bold">{results[0].ownerName}</span></p>
+                                            </div>
+                                            <div className="flex gap-4">
+                                                <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-green-100">
+                                                    <p className="text-xs text-green-600 font-medium">कुल खसरा</p>
+                                                    <p className="text-xl font-bold text-green-900">{results.length}</p>
+                                                </div>
+                                                <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-green-100">
+                                                    <p className="text-xs text-green-600 font-medium">कुल क्षेत्रफल</p>
+                                                    <p className="text-xl font-bold text-green-900">{totalArea.toFixed(3)} <span className="text-sm font-normal">हे.</span></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className={`grid gap-4 ${activeTab === 'khasra' ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"}`}>
+                                        {results.map((record) => (
+                                            <div key={record.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+                                                <div className={`p-4 flex justify-between items-center text-white ${activeTab === 'khasra' ? "bg-primary" : "bg-secondary"}`}>
+                                                    <div className="flex items-center">
+                                                        <Map className="w-5 h-5 mr-2 opacity-80" />
+                                                        <span className="font-bold">ग्राम: {record.village}</span>
+                                                    </div>
+                                                    <span className="bg-white/20 px-2 py-1 rounded text-xs font-mono">ID: {record.serialNumber}</span>
+                                                </div>
+                                                <div className="p-6 space-y-4">
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div className="bg-gray-50 p-3 rounded-xl">
+                                                            <p className="text-xs text-gray-500 uppercase font-semibold">खसरा नंबर</p>
+                                                            <p className="text-xl font-bold text-dark">{record.khasraNumber}</p>
+                                                        </div>
+                                                        <div className="bg-gray-50 p-3 rounded-xl">
+                                                            <p className="text-xs text-gray-500 uppercase font-semibold">बसरा नंबर</p>
+                                                            <p className="text-xl font-bold text-dark">{record.basraNumber}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="border-t border-gray-100 pt-4 space-y-3">
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <div className="flex items-center text-gray-500">
+                                                                <Info className="w-4 h-4 mr-2" />
+                                                                <span>भूमिस्वामी</span>
+                                                            </div>
+                                                            <span className="font-bold text-dark">{record.ownerName}</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <div className="flex items-center text-gray-500">
+                                                                <ChevronRight className="w-4 h-4 mr-2" />
+                                                                <span>क्षेत्रफल</span>
+                                                            </div>
+                                                            <span className="font-bold text-dark">{record.area.toFixed(3)} हेक्टेयर</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <div className="flex items-center text-gray-500">
+                                                                <ChevronRight className="w-4 h-4 mr-2" />
+                                                                <span>भूमि प्रकार</span>
+                                                            </div>
+                                                            <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-bold">
+                                                                {record.landType}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex justify-between items-center border-t border-dashed border-gray-100 pt-3 mt-2">
+                                                            <span className="text-xs text-gray-400 italic">चराई भूमि: {record.isGrazingLand}</span>
+                                                            <span className="text-xs text-gray-400 italic">सीलिंग भूमि: {record.isCeilingLand}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </main>
+
+                    <footer className="mt-auto py-8 text-center text-gray-400 text-sm">
+                        <p>&copy; 2024 भूमि रिकॉर्ड प्रबंधन प्रणाली - तिल्दा तहसील</p>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
