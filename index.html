@@ -14,25 +14,43 @@
         rel="stylesheet">
     <style>
         :root {
-            --royal: #1a1a6e;
-            --royal-mid: #2d2db0;
-            --gold: #f0a500;
-            --gold-light: #ffd966;
-            --cream: #fffdf5;
-            --surface: #ffffff;
-            --text-main: #1a1a2e;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --green: #059669;
-            --orange: #d97706;
-            --shadow-card: 0 4px 24px rgba(26, 26, 110, 0.10);
-            --shadow-hover: 0 12px 40px rgba(26, 26, 110, 0.18);
+            /* Premium Core Palette */
+            --royal: #1e1b4b; /* Deep Indigo / Royal */
+            --royal-mid: #312e81;
+            --royal-light: #4338ca;
+            --gold: #fbbf24; /* Rich Amber/Gold */
+            --gold-light: #fcd34d;
+            --cream: #f8fafc; /* Very subtle slate-tinted off-white */
+            
+            /* Surfaces & Glassmorphism */
+            --surface: rgba(255, 255, 255, 0.85); /* Glass base */
+            --surface-solid: #ffffff;
+            --card-border: rgba(255, 255, 255, 0.4);
+            
+            /* Typography */
+            --text-main: #0f172a; /* Slate 900 */
+            --text-muted: #64748b; /* Slate 500 */
+            --border: #e2e8f0; /* Slate 200 */
+            
+            /* Status / Accents */
+            --green: #059669; /* Emerald 600 */
+            --green-bg: #d1fae5;
+            --orange: #ea580c; /* Orange 600 */
+            --orange-bg: #ffedd5;
+            --warning: #ca8a04;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 10px 30px -5px rgba(30, 27, 75, 0.08);
+            --shadow-hover: 0 20px 40px -10px rgba(30, 27, 75, 0.15);
+            --shadow-glow: 0 0 20px rgba(251, 191, 36, 0.3);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -41,6 +59,8 @@
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* ── Background ── */
@@ -91,13 +111,15 @@
 
         /* ── Tab Bar ── */
         .tab-bar {
-            background: #fff;
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 16px;
             padding: 6px;
             display: inline-flex;
             gap: 6px;
-            box-shadow: var(--shadow-card);
-            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm), inset 0 2px 4px rgba(255,255,255,0.4);
+            border: 1px solid var(--card-border);
         }
 
         .tab-btn {
@@ -132,9 +154,11 @@
 
         /* ── Search Card ── */
         .search-card {
-            background: #fff;
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-radius: 24px;
-            border: 1px solid var(--border);
+            border: 1px solid var(--card-border);
             box-shadow: var(--shadow-card);
             padding: 36px;
             position: relative;
@@ -254,13 +278,15 @@
 
         /* ── Result Cards ── */
         .result-card {
-            background: #fff;
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 20px;
-            border: 1px solid var(--border);
+            border: 1px solid var(--card-border);
             box-shadow: var(--shadow-card);
             overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-            animation: slideUp 0.4s ease both;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
         .result-card:hover {
@@ -281,11 +307,13 @@
         }
 
         .card-header-khasra {
-            background: linear-gradient(135deg, #1a1a6e, #2563eb);
+            background: linear-gradient(135deg, var(--royal-mid), var(--royal-light));
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .card-header-basra {
-            background: linear-gradient(135deg, #065f46, #059669);
+            background: linear-gradient(135deg, var(--green), #047857);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .card-kn {
@@ -295,10 +323,17 @@
         }
 
         .stat-chip {
-            background: #f1f5f9;
-            border-radius: 10px;
+            background: var(--cream);
+            border-radius: 12px;
             padding: 10px 14px;
             text-align: center;
+            border: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+        
+        .stat-chip:hover {
+            background: var(--surface-solid);
+            box-shadow: var(--shadow-sm);
         }
 
         .stat-chip-label {
@@ -601,13 +636,16 @@
             font-size: 15px;
             font-weight: 600;
             color: var(--text-main);
-            background: #fff;
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .dash-search-input:focus {
             border-color: var(--royal-mid);
+            background: var(--surface-solid);
             box-shadow: 0 0 0 4px rgba(45, 45, 176, 0.10);
         }
 
@@ -686,22 +724,25 @@
             gap: 14px;
             padding: 12px 16px;
             border-radius: 12px;
-            background: #f8fafc;
-            border: 1px solid var(--border);
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-sm);
             transition: background 0.15s;
             margin-bottom: 10px;
             animation: slideUp 0.4s ease both;
         }
 
         .lb-row:hover {
-            background: #f0f4ff;
+            background: var(--surface-solid);
         }
 
         .lb-rank {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--royal), var(--royal-mid));
+            background: linear-gradient(135deg, var(--royal), var(--royal-light));
             color: #fff;
             font-size: 14px;
             font-weight: 900;
@@ -709,6 +750,7 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(30, 27, 75, 0.2);
         }
 
         .lb-rank.gold {
@@ -1638,19 +1680,19 @@ ${uniqueBasras ? `<p style="text-align:center;font-size:13px;margin-top:-15px;ma
 
             <!-- ▸ Animated Summary Counters -->
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:28px;">
-                <div class="dash-counter" style="background:linear-gradient(135deg,#1a1a6e,#3b5bdb);color:#fff;border-radius:16px;padding:18px 20px;text-align:center;box-shadow:0 4px 20px rgba(26,26,110,0.3);animation-delay:0s;">
+                <div class="dash-counter" style="background:linear-gradient(135deg,var(--royal-mid),var(--royal));color:#fff;border-radius:16px;padding:18px 20px;text-align:center;box-shadow:var(--shadow-card);animation-delay:0s;">
                     <div style="font-size:11px;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">कुल ग्राम</div>
                     <div class="dash-num" data-target="${grams.length}" style="font-size:38px;font-weight:900;line-height:1;">0</div>
                 </div>
-                <div class="dash-counter" style="background:linear-gradient(135deg,#065f46,#059669);color:#fff;border-radius:16px;padding:18px 20px;text-align:center;box-shadow:0 4px 20px rgba(5,150,105,0.3);animation-delay:0.1s;">
+                <div class="dash-counter" style="background:linear-gradient(135deg,var(--green),#047857);color:#fff;border-radius:16px;padding:18px 20px;text-align:center;box-shadow:var(--shadow-card);animation-delay:0.1s;">
                     <div style="font-size:11px;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">कुल रिकॉर्ड</div>
                     <div class="dash-num" data-target="${totalRec}" style="font-size:38px;font-weight:900;line-height:1;">0</div>
                 </div>
-                <div class="dash-counter" style="background:linear-gradient(135deg,#7c2d12,#ea580c);color:#fff;border-radius:16px;padding:18px 20px;text-align:center;box-shadow:0 4px 20px rgba(234,88,12,0.3);animation-delay:0.2s;">
+                <div class="dash-counter" style="background:linear-gradient(135deg,#b45309,var(--orange));color:#fff;border-radius:16px;padding:18px 20px;text-align:center;box-shadow:var(--shadow-card);animation-delay:0.2s;">
                     <div style="font-size:11px;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">कुल क्षेत्रफल (हे.)</div>
                     <div class="dash-num" data-target="${Math.round(totalArea)}" data-decimal="${totalArea}" style="font-size:34px;font-weight:900;line-height:1;">0</div>
                 </div>
-                <div class="dash-counter" style="background:linear-gradient(135deg,#1e3a5f,#0ea5e9);color:#fff;border-radius:16px;padding:18px 20px;text-align:center;box-shadow:0 4px 20px rgba(14,165,233,0.3);animation-delay:0.3s;">
+                <div class="dash-counter" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;border-radius:16px;padding:18px 20px;text-align:center;box-shadow:var(--shadow-card);animation-delay:0.3s;">
                     <div style="font-size:11px;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">सिंचित खसरे</div>
                     <div class="dash-num" data-target="${sinchai}" style="font-size:38px;font-weight:900;line-height:1;">0</div>
                 </div>
@@ -2074,27 +2116,27 @@ ${uniqueBasras ? `<p style="text-align:center;font-size:13px;margin-top:-15px;ma
                  </div>
                  
                  <!-- Summary Cards -->
-                 <div id="govSummaryCards" style="display:none; gap:14px; margin-bottom:20px; flex-wrap:wrap;">
-                    <div class="stat-chip" style="flex:1; min-width:120px; background:#f0f4ff; border:1px solid #d1d9ff; padding:16px 20px;">
-                        <div class="stat-chip-label" style="color:#1a1a6e; opacity:0.8; font-size:14px;">कुल खसरे</div>
-                        <div class="stat-chip-val" id="govSumCount" style="color:#1a1a6e; font-size:32px;">0</div>
+                 <div id="govSummaryCards" style="display:none; gap:14px; margin-bottom:24px; flex-wrap:wrap;">
+                    <div class="stat-chip" style="flex:1; min-width:120px; background:var(--surface); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid var(--card-border); padding:20px; text-align:left; box-shadow:var(--shadow-sm);">
+                        <div class="stat-chip-label" style="color:var(--text-muted); font-size:13px;">कुल खसरे</div>
+                        <div class="stat-chip-val" id="govSumCount" style="color:var(--royal); font-size:36px; line-height:1; margin-top:8px;">0</div>
                     </div>
-                    <div class="stat-chip" style="flex:1; min-width:120px; background:#f8fafc; border:1px solid #cbd5e1; padding:16px 20px;">
-                        <div class="stat-chip-label" style="color:#0f766e; opacity:0.8; font-size:14px;">कुल रकबा (हे.)</div>
-                        <div class="stat-chip-val" id="govSumArea" style="color:#0f766e; font-size:32px;">0</div>
+                    <div class="stat-chip" style="flex:1; min-width:120px; background:var(--surface); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid var(--card-border); padding:20px; text-align:left; box-shadow:var(--shadow-sm);">
+                        <div class="stat-chip-label" style="color:var(--text-muted); font-size:13px;">कुल रकबा (हे.)</div>
+                        <div class="stat-chip-val" id="govSumArea" style="color:var(--green); font-size:36px; line-height:1; margin-top:8px;">0</div>
                     </div>
                  </div>
                  
-                 <div style="background:#fff; border-radius:16px; border:1px solid var(--border); box-shadow:var(--shadow-card); overflow-x:auto;">
+                 <div style="background:var(--surface); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-radius:16px; border:1px solid var(--card-border); box-shadow:var(--shadow-card); overflow-x:auto;">
                    <table style="width:100%; border-collapse:collapse; min-width:700px; font-size:14px;">
                      <thead>
-                       <tr style="background:linear-gradient(135deg,#1a1a6e,#2d2db0); color:#fff; text-align:left;">
-                         <th style="padding:16px; font-weight:700; border-bottom:2px solid #000;">क्र.</th>
-                         <th style="padding:16px; font-weight:700; border-bottom:2px solid #000;">खसरा नं.</th>
-                         <th style="padding:16px; font-weight:700; border-bottom:2px solid #000;">बसरा नं.</th>
-                         <th style="padding:16px; font-weight:700; border-bottom:2px solid #000;">रकबा (हे.)</th>
-                         <th style="padding:16px; font-weight:700; border-bottom:2px solid #000;">भूमिस्वामी का नाम</th>
-                         <th style="padding:16px; font-weight:700; border-bottom:2px solid #000;">निस्तार विवरण</th>
+                       <tr style="background:linear-gradient(135deg,var(--royal-mid),var(--royal-light)); color:#fff; text-align:left;">
+                         <th style="padding:16px 20px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1);">क्र.</th>
+                         <th style="padding:16px 20px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1);">खसरा नं.</th>
+                         <th style="padding:16px 20px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1);">बसरा नं.</th>
+                         <th style="padding:16px 20px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1);">रकबा (हे.)</th>
+                         <th style="padding:16px 20px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1);">भूमिस्वामी का नाम</th>
+                         <th style="padding:16px 20px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1);">निस्तार विवरण</th>
                        </tr>
                      </thead>
                      <tbody id="govTableBody">
@@ -2103,9 +2145,10 @@ ${uniqueBasras ? `<p style="text-align:center;font-size:13px;margin-top:-15px;ma
                  </div>
                  
                  <!-- Empty Result message specific to Govt Tab -->
-                 <div id="govEmptyMsg" style="display:none; text-align:center; padding:40px; background:#fff; border-radius:16px; border:1px dashed var(--border); margin-top:20px;">
-                    <div style="font-size:40px; margin-bottom:10px;">🔍</div>
-                    <div style="font-weight:700; color:var(--text-muted);">इस प्रकार की कोई भूमि नहीं मिली।</div>
+                 <div id="govEmptyMsg" style="display:none; text-align:center; padding:48px 24px; background:var(--surface); backdrop-filter:blur(10px); border-radius:16px; border:2px dashed var(--border); margin-top:20px;">
+                    <div style="font-size:48px; margin-bottom:16px;">🔍</div>
+                    <div style="font-weight:700; font-size:16px; color:var(--text-main); margin-bottom:6px;">इस प्रकार की कोई भूमि नहीं मिली।</div>
+                    <div style="color:var(--text-muted); font-size:14px;">कृपया अन्य ग्राम या प्रकार का चयन करें।</div>
                  </div>
 
               </div>
@@ -2210,14 +2253,18 @@ ${uniqueBasras ? `<p style="text-align:center;font-size:13px;margin-top:-15px;ma
             currentGovData.forEach((r, idx) => {
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = '1px solid var(--border)';
-                tr.style.background = idx % 2 === 0 ? '#f8fafc' : '#fff';
+                tr.style.background = idx % 2 === 0 ? 'var(--surface)' : 'var(--cream)';
+                tr.style.transition = 'background 0.2s';
+                tr.onmouseenter = () => tr.style.background = 'var(--surface-solid)';
+                tr.onmouseleave = () => tr.style.background = idx % 2 === 0 ? 'var(--surface)' : 'var(--cream)';
+                
                 tr.innerHTML = `
-                    <td style="padding:14px 16px; font-weight:800; color:var(--text-muted);">${idx + 1}</td>
-                    <td style="padding:14px 16px; font-weight:800; color:var(--royal);">${r.kn}</td>
-                    <td style="padding:14px 16px; font-weight:600;">${r.bn || '—'}</td>
-                    <td style="padding:14px 16px; font-weight:800;">${r.area}</td>
-                    <td style="padding:14px 16px; font-weight:700; color:var(--text-main);">${r.owner}</td>
-                    <td style="padding:14px 16px; font-size:13px; color:var(--text-muted); max-width:250px;">${r.nistar || '—'}</td>
+                    <td style="padding:16px 20px; font-weight:800; color:var(--text-muted);">${idx + 1}</td>
+                    <td style="padding:16px 20px; font-weight:800; color:var(--royal);">${r.kn}</td>
+                    <td style="padding:16px 20px; font-weight:600;">${r.bn || '—'}</td>
+                    <td style="padding:16px 20px; font-weight:800;">${r.area}</td>
+                    <td style="padding:16px 20px; font-weight:700; color:var(--text-main);">${r.owner}</td>
+                    <td style="padding:16px 20px; font-size:13px; color:var(--text-muted); max-width:250px;">${r.nistar || '—'}</td>
                 `;
                 tbody.appendChild(tr);
             });
